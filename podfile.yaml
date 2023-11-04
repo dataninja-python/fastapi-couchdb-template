@@ -1,0 +1,23 @@
+version: '0.0.1.0'
+services:
+  fastapi-app:
+    image: ubuntu:latest
+    ports:
+      - "8000:8000" # FastAPI port
+      - "2222:22"   # Map host port 2222 to container port 22 for SSH
+    volumes:
+      - "./app:/app"
+    depends_on:
+      - couchdb
+    command: /bin/sh -c "while true; do sleep 30; done;" # Placeholder command
+
+  couchdb:
+    image: couchdb:latest
+    environment:
+      COUCHDB_USER: admin
+      COUCHDB_PASSWORD: password
+    volumes:
+      - "couchdb_data:/opt/couchdb/data"
+
+volumes:
+  couchdb_data:
