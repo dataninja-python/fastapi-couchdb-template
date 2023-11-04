@@ -1,23 +1,33 @@
-version: '0.0.1.0'
-services:
-  fastapi-app:
-    image: ubuntu:latest
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+spec:
+  containers:
+  - name: fastapi
+    image: my-fastapi-image:latest
     ports:
-      - "8000:8000" # FastAPI port
-      - "2222:22"   # Map host port 2222 to container port 22 for SSH
-    volumes:
-      - "./app:/app"
-    depends_on:
-      - couchdb
-    command: /bin/sh -c "while true; do sleep 30; done;" # Placeholder command
-
-  couchdb:
+    - containerPort: 8000
+      hostPort: 8000
+    - containerPort: 22
+      hostPort: 2222
+    volumeMounts:
+    - name: app-volume
+      mountPath: /app
+  - name: couchdb
     image: couchdb:latest
-    environment:
-      COUCHDB_USER: admin
-      COUCHDB_PASSWORD: password
-    volumes:
-      - "couchdb_data:/opt/couchdb/data"
-
-volumes:
-  couchdb_data:
+    env:
+    - name: COUCHDB_USER
+      value: "admin"
+    - name: COUCHDB_PASSWORD
+      value: "password"
+    volumeMounts:
+    - name: couchdb-volume
+      mountPath: /opt/couchdb/data
+  volumes:
+  - name: app-volume
+    hostPath:
+      path: $HOME/Code/Containers/fastapi-couchdb-template/app
+  - name: couchdb-volume
+    hostPath:
+      path: $HOME/Code/Containers/fastapi-couchdb-template/couchdb
